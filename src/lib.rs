@@ -17,7 +17,7 @@ Both types are generic over a parameter `T: num_traits::float::Float`, which is 
 They support addition and subtraction (also with assignment) of `T` and `&T`.
 The estimated total sum (of type `T`) can be retrieved with a method called `total()`.
 
-Both types also implement [`std::iter::Sum`], which means that iterators of floating-point numbers can be conveniently summed.
+Both types also implement [`core::iter::Sum`], which means that iterators of floating-point numbers can be conveniently summed.
 
 # Examples
 
@@ -76,10 +76,11 @@ Don't be fooled by the Kahan-Babuška result being `0.0`: from the `f64` perspec
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![allow(uncommon_codepoints, mixed_script_confusables)]
+#![no_std]
 
+use core::iter::Sum;
+use core::ops::{Add, AddAssign, Sub, SubAssign};
 use num_traits::float::Float;
-use std::iter::Sum;
-use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 /// `2Sum` algorithm, see <https://en.wikipedia.org/wiki/2Sum>.
 ///
@@ -141,11 +142,11 @@ pub fn fast_two_sum<T: Float>(a: T, b: T) -> (T, T) {
 /// assert_eq!(sum.total(), 0.0);
 /// ```
 ///
-/// In addition, [`KahanBabuska`] implements the [`std::iter::Sum`](#impl-Sum<V>-for-KahanBabuska<T>) trait, which means that an iterator of floating-point numbers can be summed either by calling [`KahanBabuska::sum()`] directly
+/// In addition, [`KahanBabuska`] implements the [`core::iter::Sum`](#impl-Sum<V>-for-KahanBabuska<T>) trait, which means that an iterator of floating-point numbers can be summed either by calling [`KahanBabuska::sum()`] directly
 ///
 /// ```
 /// # use compensated_summation::KahanBabuska;
-/// use std::iter::Sum; // remember to import the trait
+/// use core::iter::Sum; // remember to import the trait
 /// let iter = [0.1, 0.2, -0.3].iter();
 /// assert_eq!(KahanBabuska::sum(iter).total(), 0.0);
 /// ```
@@ -282,11 +283,11 @@ where
 /// assert_eq!(sum.total(), f64::EPSILON / 8.0);
 /// ```
 ///
-/// In addition, [`KahanBabuskaNeumaier`] implements the [`std::iter::Sum`](#impl-Sum<V>-for-KahanBabuskaNeumaier<T>) trait, which means that an iterator of floating-point numbers can be summed either by calling [`KahanBabuskaNeumaier::sum()`] directly
+/// In addition, [`KahanBabuskaNeumaier`] implements the [`core::iter::Sum`](#impl-Sum<V>-for-KahanBabuskaNeumaier<T>) trait, which means that an iterator of floating-point numbers can be summed either by calling [`KahanBabuskaNeumaier::sum()`] directly
 ///
 /// ```
 /// # use compensated_summation::KahanBabuskaNeumaier;
-/// use std::iter::Sum; // remember to import the trait
+/// use core::iter::Sum; // remember to import the trait
 /// let iter = [0.1, 0.2, -0.3].iter();
 /// assert_eq!(KahanBabuskaNeumaier::sum(iter).total(), f64::EPSILON / 8.0);
 /// ```
@@ -539,6 +540,10 @@ mod tests {
 
     #[test]
     fn test_correctness() {
+        extern crate std;
+
+        use std::vec::Vec;
+
         use rand::prelude::*;
         use rand_distr::LogNormal;
         use rand_xoshiro::Xoshiro256PlusPlus;
